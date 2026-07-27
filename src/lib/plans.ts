@@ -4,6 +4,18 @@
  * routes read it to enforce. Never gate a feature in the client only.
  */
 
+/**
+ * Model choice note: the standard tiers run on a flash-lite model, not because
+ * it is cheapest but because answering here is extractive — the passage is
+ * already in the prompt and the job is to restate it in two sentences. Measured
+ * against the full flash model on the demo corpus, answers were equivalent.
+ *
+ * It also matters operationally on a free API key: flash-lite allows roughly
+ * 1000 requests a day where the flagship flash allows 20, which is the
+ * difference between a demo anyone can click through and one that dies on the
+ * third question.
+ */
+
 export type PlanId = "free" | "pro" | "business";
 
 export type Plan = {
@@ -56,7 +68,7 @@ export const PLANS: Record<PlanId, Plan> = {
       websiteCrawl: false,
       conversationExport: false,
     },
-    model: "gemini-3.6-flash",
+    model: "gemini-flash-lite-latest",
     highlights: [
       "1 assistant",
       "3 documents (2 MB each)",
@@ -85,7 +97,7 @@ export const PLANS: Record<PlanId, Plan> = {
       websiteCrawl: false,
       conversationExport: false,
     },
-    model: "gemini-3.6-flash",
+    model: "gemini-flash-lite-latest",
     highlights: [
       "3 assistants",
       "100 documents (10 MB each)",
@@ -116,8 +128,8 @@ export const PLANS: Record<PlanId, Plan> = {
       websiteCrawl: true,
       conversationExport: true,
     },
-    // Alias, so the top tier tracks the current Pro model without a code change.
-    model: "gemini-pro-latest",
+    // Alias, so the top tier tracks the current flagship without a code change.
+    model: "gemini-flash-latest",
     highlights: [
       "10 assistants",
       "1,000 documents (25 MB each)",

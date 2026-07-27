@@ -26,18 +26,30 @@ export function geminiUrl(model: string, method: string, query = ""): string {
 const RETRYABLE = new Set([429, 500, 502, 503, 504]);
 
 /**
- * POST with backoff on rate limits. The free tier's quota is low enough that a
- * document of any size will hit it, and failing the upload for a limit that
- * clears in two seconds would be a poor experience.
+ * Backoff schedules in milliseconds, chosen by who is waiting.
+ *
+ * The free tier rate-limits per minute, so a burst of requests will hit 429 and
+ * clear on its own. How long we're willing to wait for that differs by caller:
+ *
+ * - `patient` is for ingestion. Someone uploaded a file and is watching a
+ *   progress indicator; waiting out the window beats failing the upload.
+ * - `impatient` is for answering. A visitor sitting in a chat widget will not
+ *   wait a minute, so we try briefly and then say so plainly.
  */
+const BACKOFF = {
+  patient: [2_000, 5_000, 12_000, 25_000, 30_000],
+  impatient: [1_500, 4_000],
+} as const;
+
 export async function geminiPost(
   url: string,
   body: unknown,
-  { attempts = 4 }: { attempts?: number } = {},
+  { patience = "patient" }: { patience?: keyof typeof BACKOFF } = {},
 ): Promise<Response> {
+  const delays = BACKOFF[patience];
   let lastError = "";
 
-  for (let attempt = 0; attempt < attempts; attempt++) {
+  for (let attempt = 0; attempt <= delays.length; attempt++) {
     const response = await fetch(url, {
       method: "POST",
       headers: geminiHeaders(),
@@ -49,12 +61,11 @@ export async function geminiPost(
 
     lastError = (await response.text()).slice(0, 300);
 
-    if (!RETRYABLE.has(response.status) || attempt === attempts - 1) {
+    if (!RETRYABLE.has(response.status) || attempt === delays.length) {
       throw new Error(friendlyError(response.status, lastError));
     }
 
-    // 2s, 4s, 8s — long enough for a per-minute quota window to move on.
-    await new Promise((resolve) => setTimeout(resolve, 2000 * 2 ** attempt));
+    await new Promise((resolve) => setTimeout(resolve, delays[attempt]));
   }
 
   throw new Error(lastError || "Gemini request failed.");

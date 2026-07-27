@@ -198,9 +198,14 @@ Called out rather than hidden — this is an MVP:
   fixed window, so on a multi-instance deploy the effective limit multiplies.
   The hard cost ceiling is the per-account monthly quota in Postgres. Swap in
   Redis for an exact global limit.
-- **The Gemini free tier throttles.** Ingesting a large document can hit a
-  per-minute quota; the client retries with backoff rather than failing, but the
-  upload takes longer. A paid key removes this.
+- **The Gemini free tier has a daily cap, and it is low.** Free keys allow
+  roughly 1000 requests a day on the flash-lite models the standard tiers use,
+  but only 20 a day on the flagship flash model the Business tier uses. Quotas
+  reset at midnight Pacific and count per project, not per key. Ingestion also
+  hits a separate per-minute limit; the client retries with backoff — patiently
+  for uploads, briefly for chat, since a visitor will not wait out a rate-limit
+  window. Enabling billing on the Google Cloud project removes all of this for
+  cents.
 - **The domain allowlist is a deterrent, not a security boundary.** It checks
   `Origin` and `Referer`, which browsers set honestly but a scripted client can
   forge. The knowledge base is the business's own public FAQ, so the real abuse

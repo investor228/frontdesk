@@ -105,6 +105,8 @@ export async function streamAnswer(opts: {
 }): Promise<AnswerResult> {
   const { bot, model, matches, history, question, leadCapture, onDelta } = opts;
 
+  // Someone is watching a chat window, so this path fails fast rather than
+  // stalling through a full rate-limit window.
   const response = await geminiPost(
     geminiUrl(model, "streamGenerateContent", "?alt=sse"),
     {
@@ -127,6 +129,7 @@ export async function streamAnswer(opts: {
         thinkingConfig: { thinkingLevel: "minimal" },
       },
     },
+    { patience: "impatient" },
   );
 
   let raw = "";
