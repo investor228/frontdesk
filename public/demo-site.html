@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tatiana Beauty Studio — Minsk</title>
+    <!--
+      A stand-in "customer website" for testing and demoing the widget.
+
+      Open /demo-site.html?bot=fd_xxxxx with one of your own public keys and the
+      loader below will mount that assistant, exactly as it would on a real site.
+    -->
+    <style>
+      :root {
+        --ink: #1b1a17;
+        --muted: #6b6459;
+        --line: #e6e0d5;
+        --sand: #f7f3ea;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--sand);
+        color: var(--ink);
+        font: 16px/1.6 "Georgia", "Times New Roman", serif;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 22px 32px;
+        border-bottom: 1px solid var(--line);
+      }
+      .logo {
+        font-size: 20px;
+        letter-spacing: 0.02em;
+      }
+      nav a {
+        margin-left: 26px;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 14px;
+      }
+      main {
+        max-width: 840px;
+        margin: 0 auto;
+        padding: 72px 32px 140px;
+      }
+      h1 {
+        font-size: 44px;
+        line-height: 1.15;
+        margin: 0 0 18px;
+      }
+      p.lead {
+        font-size: 19px;
+        color: var(--muted);
+        margin: 0 0 40px;
+      }
+      h2 {
+        font-size: 26px;
+        margin: 48px 0 14px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 15px;
+      }
+      td {
+        padding: 11px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      td:last-child {
+        text-align: right;
+        color: var(--muted);
+      }
+      .note {
+        margin-top: 56px;
+        padding: 14px 16px;
+        border: 1px dashed var(--line);
+        border-radius: 10px;
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 12.5px;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo">Tatiana Beauty Studio</div>
+      <nav>
+        <a href="#services">Services</a>
+        <a href="#prices">Prices</a>
+        <a href="#visit">Visit</a>
+      </nav>
+    </header>
+
+    <main>
+      <h1>Colour, cuts and care<br />in the centre of Minsk</h1>
+      <p class="lead">
+        A small studio, two chairs, and eleven years of doing this properly.
+        Booking is by appointment.
+      </p>
+
+      <h2 id="prices">Prices</h2>
+      <table>
+        <tr><td>Balayage — shoulder length</td><td>from $180</td></tr>
+        <tr><td>Balayage — long hair</td><td>from $220</td></tr>
+        <tr><td>Cut &amp; blow-dry</td><td>$60</td></tr>
+        <tr><td>Root touch-up</td><td>$90</td></tr>
+        <tr><td>Treatment &amp; gloss</td><td>$45</td></tr>
+      </table>
+
+      <h2 id="visit">Opening hours</h2>
+      <table>
+        <tr><td>Tuesday – Friday</td><td>10:00 – 20:00</td></tr>
+        <tr><td>Saturday</td><td>09:00 – 18:00</td></tr>
+        <tr><td>Sunday – Monday</td><td>Closed</td></tr>
+      </table>
+
+      <div class="note">
+        Demo page. Add <code>?bot=YOUR_PUBLIC_KEY</code> to the URL to mount your
+        own assistant in the corner.
+      </div>
+    </main>
+
+    <script>
+      // Read the bot key from the query string so this page works for any account.
+      (function () {
+        var key = new URLSearchParams(location.search).get("bot");
+        if (!key) return;
+        var s = document.createElement("script");
+        s.src = "/widget.js";
+        s.async = true;
+        s.setAttribute("data-bot", key);
+        document.body.appendChild(s);
+      })();
+    </script>
+  </body>
+</html>
