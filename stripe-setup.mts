@@ -122,7 +122,9 @@ for (const planId of ["pro", "business"] as const) {
   });
 }
 
-const portalSettings: Stripe.BillingPortal.ConfigurationUpdateParams = {
+// Typed as the create shape — it requires `features`, and update accepts the
+// same fields optionally, so one object satisfies both calls below.
+const portalSettings: Stripe.BillingPortal.ConfigurationCreateParams = {
   business_profile: { headline: "Frontdesk — manage your subscription" },
   features: {
     payment_method_update: { enabled: true },
