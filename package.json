@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "check:ai": "tsx --env-file=.env.local e2e-check.mts"
+    "check:ai": "tsx --env-file=.env.local e2e-check.mts",
+    "check:security": "tsx --env-file=.env.local security-check.mts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

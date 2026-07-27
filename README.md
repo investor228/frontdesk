@@ -163,6 +163,31 @@ lock, so concurrent widget traffic can't overshoot it.
 
 ---
 
+## Tenancy and security
+
+Every table is protected by row-level security, so a signed-in user can only
+reach their own rows. The subtle part is the two `SECURITY DEFINER` functions —
+vector search and the usage meter — which by design bypass RLS.
+
+Postgres grants `EXECUTE` on new functions to `PUBLIC`, and the Supabase anon
+key ships inside the browser bundle. That combination meant anyone holding a bot
+id could call the vector search directly and read another tenant's entire
+knowledge base, or increment another account's message counter. Migration
+`0002` revokes both from `anon` and `authenticated` and grants them to the
+service role alone; every caller now reaches them through a server route that
+has already established which bot the request may touch.
+
+```bash
+npm run check:security
+```
+
+That script attacks the live database with the anon key — the same credential
+every visitor already has — and fails loudly if any tenant data comes back.
+
+The URL importer is also treated as a request-forgery surface: it refuses
+loopback, private and link-local addresses, and re-checks every redirect hop
+rather than trusting the first URL.
+
 ## Known limits
 
 Called out rather than hidden — this is an MVP:

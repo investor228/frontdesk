@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { runChatTurn } from "@/lib/ai/chat-pipeline";
 import { sseResponse } from "@/lib/sse";
 import type { Bot } from "@/lib/types";
@@ -24,6 +25,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing botId or message." }, { status: 400 });
   }
 
+  // RLS-scoped: a bot that isn't the caller's simply doesn't come back, so a
+  // hit here *is* the ownership check.
   const { data: bot } = await supabase
     .from("bots")
     .select("*")
@@ -34,9 +37,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Assistant not found." }, { status: 404 });
   }
 
+  // From here on the service role runs the turn, because the retrieval and
+  // quota functions are no longer callable by end users. Tenancy is already
+  // fixed by the verified bot above — same contract as the widget route.
   return sseResponse((send) =>
     runChatTurn({
-      supabase,
+      supabase: createAdminClient(),
       bot,
       accountId: userId,
       plan,
