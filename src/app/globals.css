@@ -7,7 +7,11 @@
   /* Warm neutrals — a front desk should feel like a room, not a dashboard. */
   --color-ink: #16191d;
   --color-muted: #5f6872;
-  --color-faint: #8e959d;
+  /* Darkened from #8e959d, which sat at 3.0:1 on white and failed WCAG AA for
+     body text. This clears 4.5:1 against both --color-raised and the slightly
+     warmer --color-surface, while staying lighter than --color-muted so the
+     hierarchy still reads. */
+  --color-faint: #6a717b;
   --color-line: #e7e5df;
   --color-surface: #faf9f6;
   --color-raised: #ffffff;

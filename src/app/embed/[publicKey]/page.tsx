@@ -1,5 +1,4 @@
 import { headers } from "next/headers";
-import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { planOf } from "@/lib/plans";
 import { isAllowedOrigin } from "@/lib/widget-access";
@@ -29,7 +28,7 @@ export default async function EmbedPage({
   const { publicKey } = await params;
 
   // A deployment without Supabase keys has no bots to serve.
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) notFound();
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return <Silent reason="not configured" />;
 
   const admin = createAdminClient();
 
@@ -39,7 +38,10 @@ export default async function EmbedPage({
     .eq("public_key", publicKey)
     .maybeSingle<Bot>();
 
-  if (!bot) notFound();
+  // A mistyped or revoked key must not paint a cropped 404 in the corner of a
+  // customer's website. Render nothing, and leave the explanation somewhere
+  // only whoever installed the snippet will look.
+  if (!bot) return <Silent reason="unknown assistant key" />;
 
   const { data: account } = await admin
     .from("accounts")
@@ -66,6 +68,21 @@ export default async function EmbedPage({
       leadCapture={plan.features.leadCapture && bot.lead_capture}
       showBranding={!plan.features.removeBranding}
       appUrl={appUrl()}
+    />
+  );
+}
+
+/**
+ * Renders nothing visible. The widget frame stays transparent on the host page,
+ * so a broken install degrades to "no widget" rather than to a white box —
+ * while the reason is still one DevTools glance away for the installer.
+ */
+function Silent({ reason }: { reason: string }) {
+  return (
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `console.warn(${JSON.stringify(`[Frontdesk] Widget not loaded: ${reason}. Check the data-bot key in your embed snippet.`)})`,
+      }}
     />
   );
 }
