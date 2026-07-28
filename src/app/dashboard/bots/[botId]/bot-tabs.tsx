@@ -23,7 +23,11 @@ export function BotTabs({
   ];
 
   return (
-    <nav className="flex gap-1 overflow-x-auto border-b border-line">
+    // The baseline is an inset shadow rather than border-b, so the active tab's
+    // underline can sit flush without a negative margin. A negative margin would
+    // push content past the box, and since overflow-x-auto also makes the
+    // vertical axis scrollable, that single pixel raised a scrollbar.
+    <nav className="flex gap-1 overflow-x-auto shadow-[inset_0_-1px_0_var(--color-line)]">
       {tabs.map((tab) => {
         const active = pathname === tab.href;
         return (
@@ -31,7 +35,7 @@ export function BotTabs({
             key={tab.href}
             href={tab.href}
             className={cn(
-              "-mb-px whitespace-nowrap border-b-2 px-3 py-2.5 text-sm transition",
+              "whitespace-nowrap border-b-2 px-3 py-2.5 text-sm transition",
               active
                 ? "border-brand-600 font-medium text-ink"
                 : "border-transparent text-muted hover:text-ink",

@@ -19,6 +19,15 @@ export function formatDate(iso: string) {
   });
 }
 
+/**
+ * The app's public origin, without a trailing slash.
+ *
+ * Every caller appends a path to this, so a trailing slash — which is the
+ * natural thing to paste out of a browser address bar — produced URLs like
+ * `https://example.com//embed/fd_x`. That matches no route, and the widget
+ * snippet handed to customers was silently broken.
+ */
 export function appUrl() {
-  return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const configured = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  return configured.trim().replace(/\/+$/, "");
 }
