@@ -51,14 +51,16 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Only bounce page loads. The auth forms submit as Server Function POSTs to
-  // these same paths; redirecting those hands the client a 307 instead of the
-  // action result, and the 307 replays the POST so the signup still runs.
-  if (
-    user &&
-    request.method === "GET" &&
-    (pathname === "/login" || pathname === "/signup")
-  ) {
+  // Only bounce real page loads. Two other kinds of request hit these paths:
+  // - the auth forms submit as Server Function POSTs; a 307 there hands the
+  //   client a redirect instead of the action result and replays the POST;
+  // - after sign-in/sign-up sets the session cookie, the router refetches the
+  //   current page as an RSC request (`rsc: 1`). Redirecting that to
+  //   /dashboard gives the router another route's payload, and the client
+  //   crashes with "This page couldn't load".
+  const isPageLoad = request.method === "GET" && !request.headers.has("rsc");
+
+  if (user && isPageLoad && (pathname === "/login" || pathname === "/signup")) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     url.search = "";
