@@ -51,7 +51,14 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && (pathname === "/login" || pathname === "/signup")) {
+  // Only bounce page loads. The auth forms submit as Server Function POSTs to
+  // these same paths; redirecting those hands the client a 307 instead of the
+  // action result, and the 307 replays the POST so the signup still runs.
+  if (
+    user &&
+    request.method === "GET" &&
+    (pathname === "/login" || pathname === "/signup")
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     url.search = "";
