@@ -37,8 +37,14 @@ export default function RootLayout({
     // <html> and <body> before React hydrates, which reads as a mismatch. The
     // suppression is one level deep, so real mismatches inside the page still
     // surface.
+    //
+    // translate="no": Chrome's auto-translate swaps text nodes for <font>
+    // elements. The next time React inserts next to one — the spinner in a
+    // submit button, a streamed chat reply — it throws NotFoundError from
+    // insertBefore and the whole page falls over to "This page couldn't load".
     <html
       lang="en"
+      translate="no"
       className={`${display.variable} ${body.variable} h-full`}
       suppressHydrationWarning
     >
