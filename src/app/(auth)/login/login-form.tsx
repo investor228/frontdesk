@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { signIn, type AuthState } from "../actions";
 import { Alert, Button, Card, Field, Input, Spinner } from "@/components/ui";
 
@@ -8,6 +8,12 @@ const INITIAL: AuthState = {};
 
 export function LoginForm({ next }: { next: string }) {
   const [state, formAction, pending] = useActionState(signIn, INITIAL);
+  const busy = pending || Boolean(state.redirectTo);
+
+  // Full page load, not a client transition — see AuthState in ../actions.
+  useEffect(() => {
+    if (state.redirectTo) window.location.replace(state.redirectTo);
+  }, [state.redirectTo]);
 
   return (
     <Card className="p-5">
@@ -38,8 +44,8 @@ export function LoginForm({ next }: { next: string }) {
 
         {state.error && <Alert tone="danger">{state.error}</Alert>}
 
-        <Button type="submit" disabled={pending} className="w-full" size="lg">
-          {pending && <Spinner />}
+        <Button type="submit" disabled={busy} className="w-full" size="lg">
+          {busy && <Spinner />}
           Sign in
         </Button>
       </form>

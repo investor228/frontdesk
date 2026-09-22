@@ -3,7 +3,20 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-export type AuthState = { error?: string; notice?: string };
+/**
+ * `redirectTo` is set on success and the form does a full page load there.
+ * A `redirect()` from these actions made Next stream /dashboard back inside
+ * the action response, and applying that payload crashed the client with
+ * "This page couldn't load" — while a plain load of /dashboard renders fine.
+ */
+export type AuthState = { error?: string; notice?: string; redirectTo?: string };
+
+/** Same-origin paths only: "//host" and "/\host" would leave the site. */
+function safeNext(next: string): string {
+  return next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/\\")
+    ? next
+    : "/dashboard";
+}
 
 export async function signIn(
   _prev: AuthState,
@@ -20,7 +33,7 @@ export async function signIn(
 
   if (error) return { error: error.message };
 
-  redirect(next.startsWith("/") ? next : "/dashboard");
+  return { redirectTo: safeNext(next) };
 }
 
 export async function signUp(
@@ -56,7 +69,7 @@ export async function signUp(
       .eq("id", data.user!.id);
   }
 
-  redirect("/dashboard");
+  return { redirectTo: "/dashboard" };
 }
 
 export async function signOut() {
